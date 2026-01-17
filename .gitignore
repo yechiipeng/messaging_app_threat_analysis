@@ -1,0 +1,7 @@
+# Generated keys and messages
+*_keys.json
+envelope.json
+
+# Python cache
+__pycache__/
+*.pyc

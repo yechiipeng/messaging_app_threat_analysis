@@ -1,0 +1,34 @@
+# server_logging.py
+# Demonstrate server-visible metadata: who, when, message size.
+# Shows what information servers can see even with encrypted messages
+
+import json, time, os
+from datetime import datetime
+
+ENVELOPE_FILE = "envelope.json"  # use the current envelope produced by encrypt_demo.py
+LOG_FILE = "server_log.jsonl"
+
+def log_envelope(envelope_path=ENVELOPE_FILE, logpath=LOG_FILE):
+    if not os.path.exists(envelope_path):
+        print(f"{envelope_path} missing; run encrypt_demo.py first.")
+        return
+    env = json.load(open(envelope_path))
+    entry = {
+        "timestamp": datetime.utcnow().isoformat()+"Z",
+        "sender": env.get("from","unknown"),
+        "receiver": env.get("to","unknown"),
+        "message_size_bytes": len(env.get("ciphertext",""))//2,
+        "nonce": env.get("nonce")
+    }
+    with open(logpath,"a") as f:
+        f.write(json.dumps(entry)+"\n")
+    print(f"Logged envelope metadata to {logpath}")
+    print(json.dumps(entry, indent=2))
+
+if __name__ == "__main__":
+    # Log multiple times to simulate server traffic monitoring
+    print("Simulating server metadata logging...")
+    log_envelope()
+    time.sleep(1)
+    print("\nLogging same envelope again (simulating server seeing duplicate traffic)...")
+    log_envelope()
